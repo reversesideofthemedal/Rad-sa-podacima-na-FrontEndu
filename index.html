@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kviz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+        fetch("https://raw.githubusercontent.com/Reversesideofthemedal/Rad sa podacima na Frontendu/master/quiz.json")
+        .then(function (response){
+          if (response.status !==200){
+          throw Error("Error while fatching data");
+          }
+          return response.text();
+          }).then (function (text){
+          return JSON.parse(text);
+          }).then (function(data){
+          var container = document.getElementById("container");
+          for (var key in data.quiz){
+          let p = document.createElement("p");
+          let question = document.createTextNode(data.quiz[key].question);
+          p.appendChild(question);
+          container.appendChild(p);
+          data.quiz[key].options.forEach (function(value,index){
+          let option = document.createElement("input");
+          option.setAttribute('type', 'radio');
+          option.setAttribute('name', key);
+          option.setAttribute("value", index);
+          option.addEventListener("change", function(event){
+          saveToStorage(event.target.name, event.target.value);
+          })
+          container.appendChild(option);
+          let label = document.createElement("label");
+          let text = document.createTextNode(value);
+          label.appendChild(text);
+          container.appendChild(label);
+          let newLine = document.createElement("br");
+          container.appendChild(newLine);
+          })
+          }
+          }).then(function(){
+          var saveData = localStorage.getItem("odgovori");
+          
+          if (saveData != null){
+          var answers = JSON.parse(saveData);  
+          for (var key in answers ){
+          let option = document.getElementsByName(key);            
+          for (var i=0; i<option.length; i++){                              
+          if (option[i].value == answers[key]){
+          option[i].checked = true
+          }
+          }
+          }
+          }
+          })
+          function saveToStorage(name,value){
+          var saveData = localStorage.getItem("odgovori");
+          var korOdgovor = saveData === null ? {} : JSON.parse(saveData);
+          korOdgovor[name] = value;
+          localStorage.setItem("odgovori", JSON.stringify(korOdgovor));
+          }
+    </script>
+</body>
+</html>
